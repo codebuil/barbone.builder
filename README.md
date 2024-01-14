@@ -1,2 +1,2 @@
-# decompiler
-decompiles a class java file
+# barbonesc
+barbones c compiler
