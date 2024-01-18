@@ -30,36 +30,37 @@ class BareboneBuilder:
         self.copy_button = tk.Button(self.root, text="new file", command=self.copy_file)
         self.copy_button.pack(pady=5)
 
-    def execute_command(self, command):
+    def execute_command(self, command,show:bool):
         try:
             
             result = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True, text=True)
             self.text_area.insert(tk.END, result)
         except subprocess.CalledProcessError as e:
-            self.text_area.insert(tk.END,f"Error executing command:\n{e.output}")
+            if show:
+                self.text_area.insert(tk.END,f"Error executing command:\n{e.output}")
 
     def build_kernel(self):
         filename = tk.filedialog.askopenfilename(title="Select file")
         self.text_area.delete(1.0, tk.END)
-        self.execute_command("rm -f kernel.bin")
-        self.execute_command("as -o /tmp/boot.o ./file/boot.s")
+        self.execute_command("mv -f kernel.bin /tmp/null",False)
+        self.execute_command("as -o /tmp/boot.o ./file/boot.s",True)
         fff=f'gcc -c -I./file -L./file -nostdlib "$1" -o /tmp/kernel.o'.replace("$1",filename)
         
-        self.execute_command(fff)
-        self.execute_command("ld -T ./file/link.ld -nostdlib /tmp/boot.o /tmp/kernel.o -o /tmp/kernel.bin")
-        self.execute_command("grub-file --is-x86-multiboot /tmp/kernel.bin")
-        self.execute_command("mv /tmp/kernel.bin ./")
+        self.execute_command(fff,True)
+        self.execute_command("ld -T ./file/link.ld -nostdlib /tmp/boot.o /tmp/kernel.o -o /tmp/kernel.bin",True)
+        self.execute_command("grub-file --is-x86-multiboot /tmp/kernel.bin",True)
+        self.execute_command("mv /tmp/kernel.bin ./",False)
 
     def run_kernel(self):
         self.text_area.delete(1.0, tk.END)
-        self.execute_command("qemu-system-i386 -kernel kernel.bin")
+        self.execute_command("qemu-system-i386 -kernel kernel.bin",True)
 
     def copy_file(self):
         self.text_area.delete(1.0, tk.END)
         filename = tk.filedialog.asksaveasfilename(title="Select file")
         if filename:
             shutil.copy( f"./file/new",filename+".c")
-            self.text_area.insert(tk.END, f"File {filename} copied \n")
+            self.text_area.insert(tk.END, f"File {filename} copied \n",True)
 
 
 if __name__ == "__main__":
