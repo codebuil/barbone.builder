@@ -1,7 +1,6 @@
 # barbonesc
-barbones c compiler
+barbones bulder
 
-bash barbone.sh exemple.c
-shell version .sh
+
 
 windoness version  .py
