@@ -1,7 +1,21 @@
 int xxx=0;
 int yyy=0;
 int zzz=0;
+int video;
+ typedef int size_t;
+ int NULL;
+ char *keymap="==1234567890-===qwertyuiop====asdfghjkl====\\zxcvbnm,.;/==== ";
+ volatile unsigned int *timerss;
 static double PI = 3.141592653589793;
+static unsigned char *memoryStart;
+typedef int size_t;
+int NULL;
+// Estrutura para representar um bitmap com cabeçalho
+typedef struct Bitmap {
+    int x;          // Comprimento em X
+    int y;          // Comprimento em Y
+    unsigned char* data; // Ponteiro para os dados do bitmap
+} Bitmap;
 char *scr2=(char *)0x000b8000L;//[80*26*2];
 
 void clear(){
@@ -555,6 +569,323 @@ int strsfills(char *s,char c){
 	}
 	return pos;
 }
+
+void printc(char b,int loc)
+        {
+        		   int i=loc;
+			   char *fbp=(char* )i;
+			   	*((char *)(fbp)) =(char)b;
+			   	*((char *)(fbp+1)) =(char)0xe0;		  
+        }
+
+void memfill(void *dest, size_t length, unsigned char value) {
+    // Cast o ponteiro para unsigned char* para permitir o preenchimento byte a byte
+    unsigned char *d = (unsigned char *)dest;
+
+    // Preencha os bytes da memória com o valor especificado
+    for (size_t i = 0; i < length; i++) {
+        d[i] = value;
+    }
+}
+
+
+void memcopy(void *dest, const void *src, size_t length) {
+    // Cast os ponteiros para unsigned char* para permitir a cópia byte a byte
+    unsigned char *d = (unsigned char *)dest;
+    const unsigned char *s = (const unsigned char *)src;
+
+    // Copie os bytes de src para dest
+    for (size_t i = 0; i < length; i++) {
+        d[i] = s[i];
+    }
+}
+
+ char *malloc(int length) {
+    // Verifica se há espaço suficiente na memória
+    unsigned char *memoryEnd = memoryStart + length + sizeof(int) * 2+4;
+    if (memoryEnd > (unsigned char *)0x700000) {
+        // Não há espaço suficiente
+        return (char*)NULL;
+    }
+
+    // Preenche o bloco de memória com zeros
+    memfill(memoryStart, length + sizeof(int) * 2, 0);
+
+    // Preenche o inteiro do cabeçalho
+    *(char *)memoryStart = length;
+
+    // Preenche o inteiro do rodapé
+    *(char *)(memoryStart + length + sizeof(int)) = length;
+    memoryEnd=(memoryStart + sizeof(int));
+    memoryStart= memoryStart+ length + sizeof(int) * 2+8;
+    // Retorna o endereço após os inteiros do cabeçalho
+    return (char *)memoryEnd;
+}
+size_t lens(const char* str) {
+    size_t length = 0;
+    while (*str) {
+        length++;
+        str++;
+    }
+    return length;
+}
+void strcpys(char* dest, const char* src) {
+    while (*src) {
+        *dest = *src;
+        dest++;
+        src++;
+    }
+    *dest = '\0'; // Null-terminator
+}
+unsigned char getKeys() {
+    unsigned char value;
+    
+    // Usando uma instrução asm inline para ler a porta 0x60
+    asm volatile ("inb %1, %0" : "=a"(value) : "Nd"(0x60));
+    
+    return value;
+}
+
+void invertScreenRightToLeft() {
+    unsigned char *videoMemory = (unsigned char *)0xA0000;
+    int screenWidth = 320; // Largura da tela em pixels
+    int screenHeight = 200; // Altura da tela em pixels
+    int middleLine = screenHeight / 2; // Linha do meio (se ímpar, não se mexe)
+    
+    unsigned char temp;
+    
+    for (int y = 0; y < screenHeight; y++) {
+        int offset = y * screenWidth;
+        
+        for (int x = 0; x < screenWidth / 2; x++) {
+            // Troca os valores dos pixels da direita para a esquerda
+            temp = videoMemory[offset + x];
+            videoMemory[offset + x] = videoMemory[offset + (screenWidth - x - 1)];
+            videoMemory[offset + (screenWidth - x - 1)] = temp;
+        }
+    }
+}
+void pixels(char b,int loc)
+        {
+        		   int i=loc;
+			   char *fbp=(char* )i;
+			   	*((char *)(fbp)) =(char)b;
+			   		  
+        }
+void vline(int x,int y,int y1,char b)
+{
+	int i=0xa0000;
+	int xx=y*320+x;
+	int yyy=y1-y;
+	int xxxx=0;
+	int c=0;
+	if (y1>=y && x<320 && x>-1 && y>-1 && y<200  && y1>-1 && y1<200)
+	{
+		
+			   
+			   for(c=0;c<(yyy*320);c=c+320)
+			   	pixels(b,i+c+xx);
+	}
+	
+}
+void hline(int x,int y,int x1,char b)
+{
+	int i=0xa0000;
+	int xx=y*320+x;
+	int xxx=x1-x;
+	int xxxx=0;
+	int c=0;
+	if (x1>=x && x<320 && x>-1 && y>-1 && y<200 && x1<320 && x1>-1)
+	{
+		
+			   
+			   for(c=0;c<xxx;c=c+1)
+			   	pixels(b,i+c+xx);
+	}
+	
+}
+void box(int x,int y,int x1,int y1,char b)
+{
+	int n=0;
+	int nn=y1-y;
+	if (y1>=y && x1>=x && x<320 && x>-1 && y>-1 && y<200 && x1<320 && x1>-1 && y1>-1 && y1<200){
+	for (n=0;n<nn;n=n+1)   
+			hline(x,n+y,x1,0);
+			}
+}
+
+ void cls()
+ {
+ 			   int i=0xa0000;
+			   char b=1;
+			   int c=0;
+			   for(c=0;c<65000;c=c+1)
+			   	pixels(b,i+c);
+ } 
+ 
+ 
+ // Função para criar um bitmap
+Bitmap* createBitmap(int x, int y) {
+    // Aloca memória para a estrutura Bitmap + dados do bitmap
+    Bitmap* bmp = (Bitmap*)malloc(sizeof(Bitmap));
+    if (bmp == (void*)NULL) {
+        return(void*) NULL; // Falha na alocação de memória
+    }
+
+    // Preenche o cabeçalho com as dimensões
+    bmp->x = x;
+    bmp->y = y;
+    bmp->data=(unsigned char*) malloc(x*y+4);
+    if (bmp == (void*)NULL) {
+        return(void*) NULL; // Falha na alocação de memória
+    }
+    // Inicializa os dados do bitmap (opcional)
+    // Você pode preencher os dados aqui ou em outra função
+
+    return bmp; // Retorna o ponteiro para o bitmap + cabeçalho
+}
+
+
+void pbitmap(int x, int y, Bitmap *address) {
+    int i, j;
+    unsigned char* vga = (unsigned char*)0xA0000; // Endereço da memória de vídeo VGA
+    int screenWidth = 320; // Largura da tela no modo 13h
+
+    for (i = 0; i < address->y; i++) {
+        for (j = 0; j < address->x; j++) {
+            unsigned char pixel = address->data[i * address->x + j];
+            vga[(y + i) * screenWidth+ (x + j)] = pixel;
+        }
+    }
+}
+void memReplace(char* mem, char oldChar, char newChar, size_t length) {
+    for (size_t i = 0; i < length; i++) {
+        if (mem[i] == oldChar) {
+            mem[i] = newChar;
+        }
+    }
+}
+
+// Define a função que retorna uma string da memória baixa
+char* getStringFromLowMemory() {
+    // Ponteiro para a memória baixa (0x60000)
+    char* memoryPointer = (char*)0x60000;
+
+    // Retorna o ponteiro para a string na memória baixa
+    return memoryPointer;
+}
+
+void uintToStr(unsigned int num, char *str) {
+    int i = 0;
+    char temp[11]; // Armazena a representação reversa do número (máximo de 10 dígitos + nulo)
+
+    // Lidar com o caso especial de 0
+    if (num == 0) {
+        str[0] = '0';
+        str[1] = '\0';
+        return;
+    }
+
+    // Converter o número para uma sequência reversa de caracteres
+    while (num > 0) {
+        temp[i++] = '0' + (num % 10);
+        num /= 10;
+    }
+
+    // Inverter a sequência de caracteres para obter a representação correta
+    int j;
+    for (j = 0; j < i; j++) {
+        str[j] = temp[i - j - 1];
+    }
+    
+    // Adicionar o caractere nulo de terminação
+    str[j] = '\0';
+}
+// Função para pausar a execução por um número de segundos
+void sleep(int seconds) {
+    volatile unsigned int *timer = (volatile unsigned int *)0x46C;
+    unsigned long long nows, after;
+
+    // Converte segundos em ticks (1 tick = 1/18.2 segundos)
+    unsigned int seconds18 = (unsigned int)seconds * 18;
+
+    // Obtém o tempo atual em ticks
+    nows = *timer;
+
+    // Calcula o tempo após o qual queremos acordar
+    after = nows + seconds18;
+
+    if (after < nows) {
+        // Se after for menor que nows, significa que ocorreu um overflow do timer
+        // Portanto, esperamos até que nows seja maior ou igual a after
+        while (*timer < after) {
+            // Espera
+        }
+    } else {
+        // Se after for maior que nows, simplesmente esperamos até que nows seja maior ou igual a after
+        while (*timer < after) {
+            // Espera
+        }
+    }
+}
+
+
+int readTimerAndDivide() {
+    timerss=timerss+4;
+    unsigned int timerValue;
+
+    // Lê o valor do timer da BIOS
+    timerValue = *timerss;
+
+    
+    
+
+    // Divide o valor pelo divisor especificado
+    int result = (int)(timerValue );
+
+    return result;
+}
+
+// Função para obter um dígito de 0 a 9 a partir do resultado da divisão
+int digit(int i) {
+    int maxDivisor = i;
+    int result = readTimerAndDivide(maxDivisor);
+    result=(result & 255)/i;
+    // Mapeia o resultado para um dígito de 0 a 9
+    return result;
+}
+
+// Função para retornar o caractere ASCII correspondente a um dígito de 0 a 9
+char digitToChar(int digit) {
+    // Verifica se o dígito está dentro do intervalo válido (0 a 9)
+    if (digit < 0 || digit > 9) {
+        return '\0'; // Retorna um caractere nulo para indicar erro
+    }
+
+    // Mapeia os dígitos aos seus valores ASCII (0 a 9)
+    char asciiChars[] = "0123456789";
+
+    // Retorna o caractere correspondente
+    return asciiChars[digit];
+}
+
+void start_dll(){
+		unsigned int memo=0x301000;
+		unsigned int memos=0x301000;
+		unsigned char* memoryStart = (unsigned char*)0x301000;
+		unsigned char* datas=(unsigned char*)0x60000;
+		unsigned int* datass=(unsigned int*)0x60000;
+		memcopy(memoryStart,datas,65032);
+		datass[0]=0;
+		__asm__ __volatile__("call *%0\n\t"
+		: 
+		: "r" (memo));
+		
+		
+} 
+
+
+
 
 
 
