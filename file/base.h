@@ -2,8 +2,6 @@ int xxx=0;
 int yyy=0;
 int zzz=0;
 int video;
- typedef int size_t;
- int NULL;
  char *keymap="==1234567890-===qwertyuiop====asdfghjkl====\\zxcvbnm,.;/==== ";
  volatile unsigned int *timerss;
 static double PI = 3.141592653589793;

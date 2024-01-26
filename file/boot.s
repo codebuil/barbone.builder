@@ -23,6 +23,7 @@ stack_top:
 .section .text
 .global _start
 .global screens
+.extern kernel_main
 .type _start, @function
 _start:
 	mov $stack_top, %esp
