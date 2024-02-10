@@ -7,23 +7,23 @@ void kernel_main()
 	int x=0;
 	int y=0;
 	int n=0;
-	char *hello[10];
-	hello[0]="x86";
-	hello[1]="8086";
-	hello[2]="80186";
-	hello[3]="80286";
-	hello[4]="80386";
-	hello[5]="80486";
-	hello[6]="ARM";
-	hello[7]="ARM7";
-	clear();
-	locate(0,0);
+	char hello[]="hello world...\n";
+	char *ccc=alloc(lens(hello)+1);
 	
-	for(n=0;n<8;n++){
-		locate(n+1,n+1);
-		print(hello[n]);
+        strcpys(ccc,hello);
+        clear();
+	locate(0,0);
+        print(ccc);
+        ccc=reallocs(ccc,lens(hello)*2+2);
+        strcats(ccc,hello);
+        print(ccc);
+        
+	
+	
+
+	
 		
-}
+
 
 	
 	

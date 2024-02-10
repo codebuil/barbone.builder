@@ -21,7 +21,7 @@ void clear(){
 	char *src = scr2;//(char *)0x000b8000L;
 	for(n=0;n<80*24*2;n=n+2){
 		src[n]=32;
-		src[n+1]=0x67;
+		src[n+1]=0xe7;
 	}
 }
 void scrollb8000()
@@ -605,20 +605,34 @@ void memcopy(void *dest, const void *src, size_t length) {
         // Não há espaço suficiente
         return (char*)NULL;
     }
-
+ 
     // Preenche o bloco de memória com zeros
     memfill(memoryStart, length + sizeof(int) * 2, 0);
 
     // Preenche o inteiro do cabeçalho
-    *(char *)memoryStart = length;
+    *(int *)memoryStart = length;
 
     // Preenche o inteiro do rodapé
-    *(char *)(memoryStart + length + sizeof(int)) = length;
+    *(int *)(memoryStart + length + sizeof(int)) = length;
     memoryEnd=(memoryStart + sizeof(int));
     memoryStart= memoryStart+ length + sizeof(int) * 2+8;
     // Retorna o endereço após os inteiros do cabeçalho
     return (char *)memoryEnd;
 }
+char *alloc(int length){
+      return malloc( length);
+ 
+ }
+char *reallocs(char *ccc,int length){
+      int cc=(int)*(ccc - sizeof(int));
+      if (cc < length){
+          unsigned char *memoryEnd = malloc( length);
+          memcopy(memoryEnd,ccc,cc);
+          return memoryEnd;
+      }
+      return  ccc;   
+ 
+ }
 size_t lens(const char* str) {
     size_t length = 0;
     while (*str) {
