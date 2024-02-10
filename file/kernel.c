@@ -8,17 +8,21 @@ void kernel_main()
 	int y=0;
 	int n=0;
 	char hello[]="hello world...\n";
-	char *ccc=alloc(lens(hello)+1);
-	
+	char *ccc=alloc(lens(hello));
+	char *cc=alloc(80);
+	int p1=(int)ccc;
         strcpys(ccc,hello);
+        strshex(cc,(long)p1);
         clear();
 	locate(0,0);
         print(ccc);
-        ccc=reallocs(ccc,lens(hello)*2+2);
+        print(cc);
+        ccc=reallocs(ccc,lens(hello)*2);
+        p1=(int)ccc;
         strcats(ccc,hello);
         print(ccc);
-        
-	
+        strshex(cc,(long)p1);
+	print(cc);
 	
 
 	

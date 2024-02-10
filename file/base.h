@@ -5,8 +5,9 @@ int video;
  char *keymap="==1234567890-===qwertyuiop====asdfghjkl====\\zxcvbnm,.;/==== ";
  volatile unsigned int *timerss;
 static double PI = 3.141592653589793;
-static unsigned char *memoryStart;
+static unsigned char *memoryStart=(char *)0x200000;
 typedef int size_t;
+
 int NULL;
 // Estrutura para representar um bitmap com cabeçalho
 typedef struct Bitmap {
@@ -624,7 +625,10 @@ char *alloc(int length){
  
  }
 char *reallocs(char *ccc,int length){
-      int cc=(int)*(ccc - sizeof(int));
+      
+      char *ctt;
+      ctt=(ccc - sizeof(int));
+      int cc=(int)*ctt;
       if (cc < length){
           unsigned char *memoryEnd = malloc( length);
           memcopy(memoryEnd,ccc,cc);
