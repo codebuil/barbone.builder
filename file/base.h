@@ -56,7 +56,7 @@ void locate(int x,int y){
 	if(y>24)y=24;
 	zzz=y*80*2+x*2;
 }
-void print(char* s){
+void putss(char* s){
 	copyb8000(zzz,s);
 	xxx=0;
 	yyy++;
@@ -125,6 +125,16 @@ char *copys(char *s){
 	return s;
 }
 
+void strncpys(char* dest, const char* src,int sizes) {
+    int pos=0;
+    while (pos>=sizes) {
+        *dest = *src;
+        dest++;
+        src++;
+        pos++;
+    }
+    *dest = '\0'; // Null-terminator
+}
   static double ccoss(double x, double y)
   {
   int xx1=x;
@@ -280,7 +290,18 @@ int strcats(char *s1,char *s2){
 	return pos;
 }
 
-
+int strncats(char *s1,char *s2,int sizes ){
+	int pos=0;
+	char *s3;
+	s3=s1+strslen(s1);
+	while(pos>=sizes){
+		s3[pos]=s2[pos];
+		pos++;
+		
+	}
+	s3[pos]=s2[pos];
+	return pos;
+}
 void strsint(char *s,int n){
 	int nn=n;
 	int pos=0;
@@ -645,7 +666,7 @@ size_t lens(const char* str) {
     }
     return length;
 }
-void strcpys(char* dest, const char* src) {
+void strcpys(char* dest, char* src) {
     while (*src) {
         *dest = *src;
         dest++;
@@ -900,8 +921,91 @@ void start_dll(){
 		
 } 
 
-
-
-
-
+int ptrs(char *ccc){
+    return (int)ccc;
+}
+//print string
+void print(char *a){
+	if (a!=(char*)NULL)putss(a);
+}
+//create a new string from a constante
+char *newString(char *a){
+	char *aa;
+	char *c;
+	char *cc="";
+	size_t i=5;
+	if (a!=(char*)NULL){
+		i=i+strlen(a);
+		aa=a;
+	}else{
+		i=5;
+		aa=cc;
+	}
+	c=malloc(i);
+	if(c!=(char*)NULL && aa!=(char*)NULL)strcpys(c,aa);
+	return c;
+}
+//append same text into it string
+char *catNString(char *a,char *b,int n){
+	char *c;
+	char *cc;
+	char *aa;
+	char *bb;
+	char *nulls="";
+	int b0=0;
+	int b1=0;
+	int i=n+6;
+	if (a==(char *)NULL){
+		aa=newString(nulls);
+		b0=-1;
+	}else{
+		i=i+strlen(a);
+		aa=a;
+	}
+	if (b==(char *)NULL){
+		bb=nulls;
+	}else{
+		bb=b;
+	}
+		
+	c=reallocs(aa,i);
+	if(c!=(char *)NULL){
+		cc=c+strslen(aa);
+		strncpys(cc,bb,n);
+		cc[n]=0;
+	}
+	return c;
+}
+//append same text into it string
+char *catString(char *a,char *b){
+	char *c;
+	char *cc;
+	char *aa;
+	char *bb;
+	char *nulls="";
+	int b0=0;
+	int b1=0;
+	int n=strlen(a)+strlen(b)+2;
+	int i=n+6;
+	if (a==(char *)NULL){
+		aa=newString(nulls);
+		b0=-1;
+	}else{
+		i=i+strlen(a);
+		aa=a;
+	}
+	if (b==(char *)NULL){
+		bb=nulls;
+	}else{
+		bb=b;
+	}
+		
+	c=reallocs(aa,i);
+	if(c!=(char *)NULL){
+		cc=c+strslen(aa);
+		strncpys(cc,bb,n);
+		cc[n]=0;
+	}
+	return c;
+}
 
