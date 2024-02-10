@@ -16,7 +16,7 @@ void kernel_main()
         print(ccc);
         print(cc);
         
-        catString(ccc,hello);
+        ccc=catString(ccc,hello);
         print(ccc);
         strshex(cc,(long)ptrs(ccc));
 	print(cc);
